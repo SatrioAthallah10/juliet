@@ -14,15 +14,17 @@ jobs:
       with:
         fetch-depth: 2 
 
-    - name: FTP-Deploy-Action
-      uses: SamKirkland/FTP-Deploy-Action@4.3.3
+    - name: SFTP-Deploy-Action
+      uses: wlixcc/SFTP-Deploy-Action@v1.2.4
       with:
         server: ${{ secrets.FTP_SERVER }}
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
-        server-dir: ${{ secrets.DEPLOY_PATH_PROD }}
-        protocol: ftps
         port: 22
+        local_path: './*'
+        remote_path: ${{ secrets.DEPLOY_PATH_PROD }}
+        sftp_only: true
+        delete_remote_files: false
         exclude: |
           **/.phpunit.cache
           **/node_modules/**
@@ -52,15 +54,17 @@ jobs:
   #     with:
   #       fetch-depth: 2 
 
-  #   - name: FTP-Deploy-Action
-  #     uses: SamKirkland/FTP-Deploy-Action@4.3.3
+  #   - name: SFTP-Deploy-Action
+  #     uses: wlixcc/SFTP-Deploy-Action@v1.2.4
   #     with:
-  #       server: ${{ secrets.FTP_SERVER }}
   #       username: ${{ secrets.FTP_USERNAME_DEV }}
   #       password: ${{ secrets.FTP_PASSWORD_DEV }}
-  #       server-dir: ${{ secrets.DEPLOY_PATH_DEV }}
-  #       protocol: ftp
-  #       port: 21
+  #       server: ${{ secrets.FTP_SERVER }}
+  #       port: 22
+  #       local_path: './*'
+  #       remote_path: ${{ secrets.DEPLOY_PATH_DEV }}
+  #       sftp_only: true
+  #       delete_remote_files: false
   #       exclude: |
   #         **/.phpunit.cache
   #         **/node_modules/**
