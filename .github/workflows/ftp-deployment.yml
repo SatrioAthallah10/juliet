@@ -22,7 +22,7 @@ jobs:
         password: ${{ secrets.FTP_PASSWORD }}
         server-dir: ${{ secrets.DEPLOY_PATH_PROD }}
         protocol: ftp
-        port: 21
+        port: 22
         exclude: |
           **/.phpunit.cache
           **/node_modules/**
