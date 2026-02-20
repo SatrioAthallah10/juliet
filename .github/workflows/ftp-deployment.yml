@@ -25,10 +25,13 @@ jobs:
       run: |
         lftp -e "
         set sftp:auto-confirm yes;
+        set net:timeout 10;
+        set net:max-retries 3;
+        set sftp:connect-program \"ssh -a -x -o StrictHostKeyChecking=no\";
         open -u \"$FTP_USERNAME\",\"$FTP_PASSWORD\" -p 22 sftp://$FTP_SERVER;
-        mirror -R . ${{ secrets.DEPLOY_PATH_PROD }} \
+        mirror -R -v . ${{ secrets.DEPLOY_PATH_PROD }} \
           --ignore-time \
-          --parallel=10 \
+          --parallel=2 \
           --exclude .git/ \
           --exclude .github/ \
           --exclude node_modules/ \
@@ -62,10 +65,13 @@ jobs:
   #     run: |
   #       lftp -e "
   #       set sftp:auto-confirm yes;
+  #       set net:timeout 10;
+  #       set net:max-retries 3;
+  #       set sftp:connect-program \"ssh -a -x -o StrictHostKeyChecking=no\";
   #       open -u \"$FTP_USERNAME\",\"$FTP_PASSWORD\" -p 22 sftp://$FTP_SERVER;
-  #       mirror -R . ${{ secrets.DEPLOY_PATH_DEV }} \
+  #       mirror -R -v . ${{ secrets.DEPLOY_PATH_DEV }} \
   #         --ignore-time \
-  #         --parallel=10 \
+  #         --parallel=2 \
   #         --exclude .git/ \
   #         --exclude .github/ \
   #         --exclude node_modules/ \
