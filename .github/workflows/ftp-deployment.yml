@@ -14,36 +14,30 @@ jobs:
       with:
         fetch-depth: 2 
 
-    - name: SFTP-Deploy-Action
-      uses: wlixcc/SFTP-Deploy-Action@v1.2.4
-      with:
-        server: ${{ secrets.FTP_SERVER }}
-        username: ${{ secrets.FTP_USERNAME }}
-        password: ${{ secrets.FTP_PASSWORD }}
-        port: 22
-        local_path: './*'
-        remote_path: ${{ secrets.DEPLOY_PATH_PROD }}
-        sftp_only: true
-        delete_remote_files: false
-        exclude: |
-          **/.phpunit.cache
-          **/node_modules/**
-          **/public/hot
-          **/public/storage/**
-          **/storage/*.key
-          **/vendor/**
-          .env
-          .env.backup
-          .env.production
-          .phpunit.result.cache
-          docker-compose.override.yml
-          Homestead.json
-          Homestead.yaml
-          npm-debug.log
-          yarn-error.log
-          **/.fleet/**
-          **/.idea/**
-          **/.vscode/**
+    - name: Deploy via SFTP (lftp)
+      env:
+        FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+        FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        FTP_SERVER: ${{ secrets.FTP_SERVER }}
+      run: |
+        lftp -e "
+        set sftp:auto-confirm yes;
+        open -u \"$FTP_USERNAME\",\"$FTP_PASSWORD\" -p 22 sftp://$FTP_SERVER;
+        mirror -R . ${{ secrets.DEPLOY_PATH_PROD }} \
+          --ignore-time \
+          --parallel=10 \
+          --exclude .git/ \
+          --exclude .github/ \
+          --exclude node_modules/ \
+          --exclude vendor/ \
+          --exclude .env \
+          --exclude storage/ \
+          --exclude public/storage/ \
+          --exclude .phpunit.cache \
+          --exclude .fleet/ \
+          --exclude .idea/ \
+          --exclude .vscode/;
+        quit"
 
   # FTP-Deploy-Development:
   #   name: Deploy to Development
@@ -54,36 +48,30 @@ jobs:
   #     with:
   #       fetch-depth: 2 
 
-  #   - name: SFTP-Deploy-Action
-  #     uses: wlixcc/SFTP-Deploy-Action@v1.2.4
-  #     with:
-  #       username: ${{ secrets.FTP_USERNAME_DEV }}
-  #       password: ${{ secrets.FTP_PASSWORD_DEV }}
-  #       server: ${{ secrets.FTP_SERVER }}
-  #       port: 22
-  #       local_path: './*'
-  #       remote_path: ${{ secrets.DEPLOY_PATH_DEV }}
-  #       sftp_only: true
-  #       delete_remote_files: false
-  #       exclude: |
-  #         **/.phpunit.cache
-  #         **/node_modules/**
-  #         **/public/hot
-  #         **/public/storage/**
-  #         **/storage/*.key
-  #         **/vendor/**
-  #         .env
-  #         .env.backup
-  #         .env.production
-  #         .phpunit.result.cache
-  #         docker-compose.override.yml
-  #         Homestead.json
-  #         Homestead.yaml
-  #         npm-debug.log
-  #         yarn-error.log
-  #         **/.fleet/**
-  #         **/.idea/**
-  #         **/.vscode/**
+  #   - name: Deploy via SFTP (lftp)
+  #     env:
+  #       FTP_USERNAME: ${{ secrets.FTP_USERNAME_DEV }}
+  #       FTP_PASSWORD: ${{ secrets.FTP_PASSWORD_DEV }}
+  #       FTP_SERVER: ${{ secrets.FTP_SERVER }}
+  #     run: |
+  #       lftp -e "
+  #       set sftp:auto-confirm yes;
+  #       open -u \"$FTP_USERNAME\",\"$FTP_PASSWORD\" -p 22 sftp://$FTP_SERVER;
+  #       mirror -R . ${{ secrets.DEPLOY_PATH_DEV }} \
+  #         --ignore-time \
+  #         --parallel=10 \
+  #         --exclude .git/ \
+  #         --exclude .github/ \
+  #         --exclude node_modules/ \
+  #         --exclude vendor/ \
+  #         --exclude .env \
+  #         --exclude storage/ \
+  #         --exclude public/storage/ \
+  #         --exclude .phpunit.cache \
+  #         --exclude .fleet/ \
+  #         --exclude .idea/ \
+  #         --exclude .vscode/;
+  #       quit"
 
     # - name: Setup SSH Key
     #   run: |
