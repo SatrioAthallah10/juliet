@@ -23,12 +23,12 @@ jobs:
         FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
         FTP_SERVER: ${{ secrets.FTP_SERVER }}
       run: |
-        lftp -e "
-        set sftp:auto-confirm yes;
-        set net:timeout 10;
-        set net:max-retries 3;
-        set sftp:connect-program \"ssh -a -x -o StrictHostKeyChecking=no\";
-        open -u \"$FTP_USERNAME\",\"$FTP_PASSWORD\" -p 22 sftp://$FTP_SERVER;
+        lftp <<EOF
+        set sftp:auto-confirm yes
+        set net:timeout 10
+        set net:max-retries 3
+        open sftp://$FTP_SERVER
+        user "$FTP_USERNAME" "$FTP_PASSWORD"
         mirror -R -v . ${{ secrets.DEPLOY_PATH_PROD }} \
           --ignore-time \
           --parallel=2 \
@@ -42,8 +42,9 @@ jobs:
           --exclude .phpunit.cache \
           --exclude .fleet/ \
           --exclude .idea/ \
-          --exclude .vscode/;
-        quit"
+          --exclude .vscode/
+        quit
+        EOF
 
   # FTP-Deploy-Development:
   #   name: Deploy to Development
@@ -63,12 +64,12 @@ jobs:
   #       FTP_PASSWORD: ${{ secrets.FTP_PASSWORD_DEV }}
   #       FTP_SERVER: ${{ secrets.FTP_SERVER }}
   #     run: |
-  #       lftp -e "
-  #       set sftp:auto-confirm yes;
-  #       set net:timeout 10;
-  #       set net:max-retries 3;
-  #       set sftp:connect-program \"ssh -a -x -o StrictHostKeyChecking=no\";
-  #       open -u \"$FTP_USERNAME\",\"$FTP_PASSWORD\" -p 22 sftp://$FTP_SERVER;
+  #       lftp <<EOF
+  #       set sftp:auto-confirm yes
+  #       set net:timeout 10
+  #       set net:max-retries 3
+  #       open sftp://$FTP_SERVER
+  #       user "$FTP_USERNAME" "$FTP_PASSWORD"
   #       mirror -R -v . ${{ secrets.DEPLOY_PATH_DEV }} \
   #         --ignore-time \
   #         --parallel=2 \
@@ -82,8 +83,9 @@ jobs:
   #         --exclude .phpunit.cache \
   #         --exclude .fleet/ \
   #         --exclude .idea/ \
-  #         --exclude .vscode/;
-  #       quit"
+  #         --exclude .vscode/
+  #       quit
+  #       EOF
 
     # - name: Setup SSH Key
     #   run: |
