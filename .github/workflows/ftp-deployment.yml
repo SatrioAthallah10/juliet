@@ -21,7 +21,7 @@ jobs:
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
         server-dir: ${{ secrets.DEPLOY_PATH_PROD }}
-        protocol: ftp
+        protocol: sftp
         port: 22
         exclude: |
           **/.phpunit.cache
