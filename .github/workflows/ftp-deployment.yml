@@ -14,34 +14,27 @@ jobs:
       with:
         fetch-depth: 2 
 
-    - name: FTP-Deploy-Action
-      uses: SamKirkland/FTP-Deploy-Action@4.3.3
-      with:
-        server: ${{ secrets.FTP_SERVER }}
-        username: ${{ secrets.FTP_USERNAME }}
-        password: ${{ secrets.FTP_PASSWORD }}
-        server-dir: ${{ secrets.DEPLOY_PATH_PROD }}
-        protocol: ftps
-        port: 22
-        exclude: |
-          **/.phpunit.cache
-          **/node_modules/**
-          **/public/hot
-          **/public/storage/**
-          **/storage/*.key
-          **/vendor/**
-          .env
-          .env.backup
-          .env.production
-          .phpunit.result.cache
-          docker-compose.override.yml
-          Homestead.json
-          Homestead.yaml
-          npm-debug.log
-          yarn-error.log
-          **/.fleet/**
-          **/.idea/**
-          **/.vscode/**
+    - name: Install rsync and sshpass
+      run: sudo apt-get update && sudo apt-get install -y rsync sshpass
+
+    - name: Deploy via SFTP (rsync)
+      env:
+        SSH_PASS: ${{ secrets.FTP_PASSWORD }}
+      run: |
+        sshpass -e rsync -avz --delete \
+          -e "ssh -o StrictHostKeyChecking=no -p 22" \
+          --exclude='.git/' \
+          --exclude='.github/' \
+          --exclude='node_modules/' \
+          --exclude='vendor/' \
+          --exclude='.env' \
+          --exclude='storage/' \
+          --exclude='public/storage/' \
+          --exclude='.phpunit.cache' \
+          --exclude='.fleet/' \
+          --exclude='.idea/' \
+          --exclude='.vscode/' \
+          ./ ${{ secrets.FTP_USERNAME }}@${{ secrets.FTP_SERVER }}:${{ secrets.DEPLOY_PATH_PROD }}
 
   # FTP-Deploy-Development:
   #   name: Deploy to Development
@@ -52,34 +45,27 @@ jobs:
   #     with:
   #       fetch-depth: 2 
 
-  #   - name: FTP-Deploy-Action
-  #     uses: SamKirkland/FTP-Deploy-Action@4.3.3
-  #     with:
-  #       server: ${{ secrets.FTP_SERVER }}
-  #       username: ${{ secrets.FTP_USERNAME_DEV }}
-  #       password: ${{ secrets.FTP_PASSWORD_DEV }}
-  #       server-dir: ${{ secrets.DEPLOY_PATH_DEV }}
-  #       protocol: ftp
-  #       port: 21
-  #       exclude: |
-  #         **/.phpunit.cache
-  #         **/node_modules/**
-  #         **/public/hot
-  #         **/public/storage/**
-  #         **/storage/*.key
-  #         **/vendor/**
-  #         .env
-  #         .env.backup
-  #         .env.production
-  #         .phpunit.result.cache
-  #         docker-compose.override.yml
-  #         Homestead.json
-  #         Homestead.yaml
-  #         npm-debug.log
-  #         yarn-error.log
-  #         **/.fleet/**
-  #         **/.idea/**
-  #         **/.vscode/**
+  #   - name: Install rsync and sshpass
+  #     run: sudo apt-get update && sudo apt-get install -y rsync sshpass
+
+  #   - name: Deploy via SFTP (rsync)
+  #     env:
+  #       SSH_PASS: ${{ secrets.FTP_PASSWORD_DEV }}
+  #     run: |
+  #       sshpass -e rsync -avz --delete \
+  #         -e "ssh -o StrictHostKeyChecking=no -p 22" \
+  #         --exclude='.git/' \
+  #         --exclude='.github/' \
+  #         --exclude='node_modules/' \
+  #         --exclude='vendor/' \
+  #         --exclude='.env' \
+  #         --exclude='storage/' \
+  #         --exclude='public/storage/' \
+  #         --exclude='.phpunit.cache' \
+  #         --exclude='.fleet/' \
+  #         --exclude='.idea/' \
+  #         --exclude='.vscode/' \
+  #         ./ ${{ secrets.FTP_USERNAME_DEV }}@${{ secrets.FTP_SERVER }}:${{ secrets.DEPLOY_PATH_DEV }}
 
     # - name: Setup SSH Key
     #   run: |
@@ -97,14 +83,14 @@ jobs:
     #       php artisan down || true
     #       composer install --no-interaction --prefer-dist --optimize-autoloader
     #       composer dump-autoload --optimize
-    #       php artisan migrate --force
-    #       php artisan config:clear
-    #       php artisan cache:clear
-    #       php artisan optimize:clear
-    #       php artisan config:cache
-    #       php artisan route:cache
-    #       php artisan view:cache
-    #       php artisan up
+    #       # php artisan migrate --force
+    #       # php artisan config:clear
+    #       # php artisan cache:clear
+    #       # php artisan optimize:clear
+    #       # php artisan config:cache
+    #       # php artisan route:cache
+    #       # php artisan view:cache
+    #       # php artisan up
     #     EOF
 
     # # Laravel commands for development
@@ -116,7 +102,6 @@ jobs:
     #       php artisan down || true
     #       composer install --no-interaction --prefer-dist --optimize-autoloader
     #       composer dump-autoload --optimize
-    #       php artisan migrate --force
     #       php artisan config:clear
     #       php artisan cache:clear
     #       php artisan optimize:clear
