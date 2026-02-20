@@ -14,37 +14,34 @@ jobs:
       with:
         fetch-depth: 2 
 
-    - name: Install lftp
-      run: sudo apt-get update && sudo apt-get install -y lftp
-
-    - name: Deploy via SFTP (lftp)
-      env:
-        FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
-        FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
-        FTP_SERVER: ${{ secrets.FTP_SERVER }}
-      run: |
-        lftp <<EOF
-        set sftp:auto-confirm yes
-        set net:timeout 10
-        set net:max-retries 3
-        open sftp://$FTP_SERVER:22
-        user "$FTP_USERNAME" "$FTP_PASSWORD"
-        mirror -R -v . ${{ secrets.DEPLOY_PATH_PROD }} \
-          --ignore-time \
-          --parallel=2 \
-          --exclude .git/ \
-          --exclude .github/ \
-          --exclude node_modules/ \
-          --exclude vendor/ \
-          --exclude .env \
-          --exclude storage/ \
-          --exclude public/storage/ \
-          --exclude .phpunit.cache \
-          --exclude .fleet/ \
-          --exclude .idea/ \
-          --exclude .vscode/
-        quit
-        EOF
+    - name: FTP-Deploy-Action
+      uses: SamKirkland/FTP-Deploy-Action@4.3.3
+      with:
+        server: ${{ secrets.FTP_SERVER }}
+        username: ${{ secrets.FTP_USERNAME }}
+        password: ${{ secrets.FTP_PASSWORD }}
+        server-dir: ${{ secrets.DEPLOY_PATH_PROD }}
+        protocol: ftps
+        port: 22
+        exclude: |
+          **/.phpunit.cache
+          **/node_modules/**
+          **/public/hot
+          **/public/storage/**
+          **/storage/*.key
+          **/vendor/**
+          .env
+          .env.backup
+          .env.production
+          .phpunit.result.cache
+          docker-compose.override.yml
+          Homestead.json
+          Homestead.yaml
+          npm-debug.log
+          yarn-error.log
+          **/.fleet/**
+          **/.idea/**
+          **/.vscode/**
 
   # FTP-Deploy-Development:
   #   name: Deploy to Development
@@ -55,37 +52,34 @@ jobs:
   #     with:
   #       fetch-depth: 2 
 
-  #   - name: Install lftp
-  #     run: sudo apt-get update && sudo apt-get install -y lftp
-
-  #   - name: Deploy via SFTP (lftp)
-  #     env:
-  #       FTP_USERNAME: ${{ secrets.FTP_USERNAME_DEV }}
-  #       FTP_PASSWORD: ${{ secrets.FTP_PASSWORD_DEV }}
-  #       FTP_SERVER: ${{ secrets.FTP_SERVER }}
-  #     run: |
-  #       lftp <<EOF
-  #       set sftp:auto-confirm yes
-  #       set net:timeout 10
-  #       set net:max-retries 3
-  #       open sftp://$FTP_SERVER
-  #       user "$FTP_USERNAME" "$FTP_PASSWORD"
-  #       mirror -R -v . ${{ secrets.DEPLOY_PATH_DEV }} \
-  #         --ignore-time \
-  #         --parallel=2 \
-  #         --exclude .git/ \
-  #         --exclude .github/ \
-  #         --exclude node_modules/ \
-  #         --exclude vendor/ \
-  #         --exclude .env \
-  #         --exclude storage/ \
-  #         --exclude public/storage/ \
-  #         --exclude .phpunit.cache \
-  #         --exclude .fleet/ \
-  #         --exclude .idea/ \
-  #         --exclude .vscode/
-  #       quit
-  #       EOF
+  #   - name: FTP-Deploy-Action
+  #     uses: SamKirkland/FTP-Deploy-Action@4.3.3
+  #     with:
+  #       server: ${{ secrets.FTP_SERVER }}
+  #       username: ${{ secrets.FTP_USERNAME_DEV }}
+  #       password: ${{ secrets.FTP_PASSWORD_DEV }}
+  #       server-dir: ${{ secrets.DEPLOY_PATH_DEV }}
+  #       protocol: ftp
+  #       port: 21
+  #       exclude: |
+  #         **/.phpunit.cache
+  #         **/node_modules/**
+  #         **/public/hot
+  #         **/public/storage/**
+  #         **/storage/*.key
+  #         **/vendor/**
+  #         .env
+  #         .env.backup
+  #         .env.production
+  #         .phpunit.result.cache
+  #         docker-compose.override.yml
+  #         Homestead.json
+  #         Homestead.yaml
+  #         npm-debug.log
+  #         yarn-error.log
+  #         **/.fleet/**
+  #         **/.idea/**
+  #         **/.vscode/**
 
     # - name: Setup SSH Key
     #   run: |
