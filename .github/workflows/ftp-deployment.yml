@@ -27,7 +27,7 @@ jobs:
         set sftp:auto-confirm yes
         set net:timeout 10
         set net:max-retries 3
-        open sftp://$FTP_SERVER
+        open sftp://$FTP_SERVER:22
         user "$FTP_USERNAME" "$FTP_PASSWORD"
         mirror -R -v . ${{ secrets.DEPLOY_PATH_PROD }} \
           --ignore-time \
