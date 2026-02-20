@@ -47,7 +47,7 @@
                     <h1>
                         Transformasi Manajemen Sekolah Bersama Juliet                     </h1>
                     <p class="hero-desc">
-                        Rasakan masa depan pendidikan INDONESIA MANTAP JIWAAA INI TEST EDIT dengan platform Juliet kami. Sederhanakan absensi, tugas, ujian, dan banyak lagi. Tingkatkan efisiensi dan keterlibatan sekolah Anda.
+                        Rasakan masa depan pendidikan INDONESIA MANTAP JIWAAA INI TEST EDIT KELIATAN GAK? dengan platform Juliet kami. Sederhanakan absensi, tugas, ujian, dan banyak lagi. Tingkatkan efisiensi dan keterlibatan sekolah Anda.
                     </p>
                     <div class="hero-buttons">
                         <button class="btn-primary"
